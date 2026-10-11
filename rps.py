@@ -237,7 +237,8 @@ def is_move_good(move):
     """
     if move.lower() == ROCK or move.lower() == PAPER or move.lower() == SCISSORS:
         return True
-    return False
+    else:
+        return False
 
 def is_round_winner(move, opponent_move):
     """
