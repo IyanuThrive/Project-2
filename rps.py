@@ -4,12 +4,13 @@ rps.py
 Redistributed and modified with permission from the
 EECS Department at The University of Michigan, Ann Arbor
 
-Name: TO FILL IN (your name)
+Name: Iyanu Adekoya
 
 CS 104: Project 2
 FALL 2026
 
-Description: TO FILL IN (one or two sentences about what this program does)
+Description: A two-player terminal rock, paper, scissors game.
+Each game plays three rounds and announces the overall winner.
 """
 
 # ***********************************************************************
@@ -209,10 +210,19 @@ QUIT_CHOICE = 3
 
 def rps():
     """
-    Purpose: Runs the whole program. Write this function LAST.
+    Run the program, displaying the header and asking for both names once.
+    Repeatedly get a menu choice, play the selected game, and announce its
+    result until QUIT_CHOICE is selected. Print the closer and return None.
     """
-    # TODO: implement
-    pass
+    print_initial_header()
+    p1_name = get_name(PLAYER_1)
+    p2_name = get_name(PLAYER_2)
+    game_type = get_menu_choice()
+    while game_type != QUIT_CHOICE:
+        winner_name = do_game(p1_name, p2_name, game_type)
+        announce_winner(winner_name)
+        game_type = get_menu_choice()
+    print_closer()
 
 
 # ***********************************************************************
@@ -221,11 +231,148 @@ def rps():
 # ***********************************************************************
 
 def is_move_good(move):
-    """TO FILL IN: describe what this function does in one line."""
-    # TODO: implement
+    """
+    Return True if move is a single valid rock, paper, or scissors letter.
+    Accept uppercase or lowercase letters; return False otherwise.
+    """
+    if move.lower() == ROCK or move.lower() == PAPER or move.lower() == SCISSORS:
+        return True
+    return False
 
-    # NOTE: replace this return statement!!!
-    return True
+def is_round_winner(move, opponent_move):
+    """
+    Return True if move beats opponent_move; otherwise return False.
+    Both moves must be valid. Ignore case, and treat a tie as not a win.
+    """
+    move = move.lower()
+    opponent_move = opponent_move.lower()
+    if (
+        (move == ROCK and opponent_move == SCISSORS)
+        or (move == SCISSORS and opponent_move == PAPER)
+        or (move == PAPER and opponent_move == ROCK)
+        ):
+        return True        
+    else:
+        return False
+
+def get_name(player_number):
+    """
+    Prompt for and return the name of PLAYER_1 or PLAYER_2, preserving spaces.
+    For an empty name, call print_error_message with ERROR_NAME and return
+    DEFAULT_NAME_1 or DEFAULT_NAME_2 for the corresponding player.
+    """
+    player_name = input(f"Player {player_number}, enter your name: ")
+    if player_name == "":
+        print_error_message(ERROR_NAME)
+        if player_number == PLAYER_1:
+            return DEFAULT_NAME_1
+        elif player_number == PLAYER_2:
+            return DEFAULT_NAME_2
+    else:
+        return player_name
+
+def get_menu_choice():
+    """
+    Call print_menu and prompt until a valid menu choice is entered.
+    Print "Invalid menu choice" for invalid input and display the menu again.
+    Return PLAY_RPS, PLAY_RPSLS, or QUIT_CHOICE as an integer.
+    """
+    print_menu()
+    choice = input("Choice --> ")
+    while True:
+        while not choice.isdecimal():
+            print("Invalid menu choice")
+            print_menu()
+            choice = input("Choice --> ")
+        value = int(choice)
+        if value in (PLAY_RPS, PLAY_RPSLS, QUIT_CHOICE):
+            return value
+        print("Invalid menu choice")
+        print_menu()
+        choice = input("Choice --> ")
+
+def get_move(player_name):
+    """
+    Prompt player_name for a move and validate it with is_move_good.
+    Return a valid move exactly as typed. Otherwise, call print_error_message
+    with ERROR_MOVE and return DEFAULT_MOVE.
+    """
+    move = input(f"{player_name}, enter your move: ")
+    if is_move_good(move):
+        return move
+    else:
+        print_error_message(ERROR_MOVE)
+        return DEFAULT_MOVE
+
+def announce_round_winner(winner_name):
+    """
+    Print "<name> wins the round!" when winner_name is not empty.
+    Otherwise, print "This round is a draw!". Return None.
+    """
+    if winner_name:
+        print(f"{winner_name} wins the round!")
+    else:
+        print("This round is a draw!")
+
+def do_round(p1_name, p2_name):
+    """
+    Call get_move for each player, then use is_round_winner to find the result.
+    Return DRAW, PLAYER_1, or PLAYER_2 without announcing the round result.
+    """
+    p1_move = get_move(p1_name)
+    p2_move = get_move(p2_name)
+    if is_round_winner(p1_move, p2_move):
+        return PLAYER_1
+    elif is_round_winner(p2_move, p1_move):
+        return PLAYER_2
+    else:
+        return DRAW
+
+def announce_winner(winner_name):
+    """
+    Print "Congratulations <name>!" followed by the game victory message,
+    using COURSE_NAME. For an empty name, print "No winner!". Return None.
+    """
+    if winner_name:
+        print(f"Congratulations {winner_name}!")
+        print(f"You won {COURSE_NAME} Rock, Paper, Scissors!")
+    else:
+        print("No winner!")
+
+def do_game(p1_name, p2_name, game_type):
+    """
+    For PLAY_RPSLS, print "Under Construction" and return an empty string.
+    Otherwise, play exactly MAX_ROUNDS rounds using do_round and announce
+    each result with announce_round_winner. Draws earn neither player a point.
+    Return the name of the player with more wins, or "" if scores are tied.
+    """
+    if game_type == PLAY_RPSLS:
+        print("Under Construction")
+        return ""
+    elif game_type == PLAY_RPS:
+        p1_score = 0
+        p2_score = 0
+        for round_number in range(MAX_ROUNDS):
+            round_winner = do_round(p1_name, p2_name)
+            if round_winner == PLAYER_1:
+                p1_score += 1
+                announce_round_winner(p1_name)
+                continue
+            elif round_winner == PLAYER_2:
+                p2_score += 1
+                announce_round_winner(p2_name)
+                continue
+            announce_round_winner("")
+        if p1_score > p2_score:
+            return p1_name
+        elif p2_score > p1_score:
+            return p2_name
+        else:
+            return ""
+
+                
+
+            
 
 
 # ***********************************************************************
