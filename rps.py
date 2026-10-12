@@ -363,7 +363,8 @@ def do_game(p1_name, p2_name, game_type):
                 p2_score += 1
                 announce_round_winner(p2_name)
                 continue
-            announce_round_winner("")
+            else:
+                announce_round_winner("")
         if p1_score > p2_score:
             return p1_name
         elif p2_score > p1_score:
